@@ -1,0 +1,50 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.2'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.softwaremill'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    implementation ('org.springframework.boot:spring-boot-starter-web')
+    implementation 'com.softwaremill.jox:channels:0.3.2'
+    implementation 'com.softwaremill.jox:structured:0.3.2'
+    implementation 'com.softwaremill.jox:flows:0.3.2'
+    implementation 'org.slf4j:slf4j-api:2.0.16'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.mockito', module: 'mockito-core'
+    }
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += "--enable-preview"
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    jvmArgs += "--enable-preview"
+    testLogging {
+        setShowStandardStreams(true)
+    }
+    afterTest { desc, result ->
+        logger.quiet "Executing test ${desc.name} [${desc.className}] with result: ${result.resultType}"
+    }
+}
+
+tasks.withType(JavaExec).configureEach {
+    jvmArgs += "--enable-preview"
+}
