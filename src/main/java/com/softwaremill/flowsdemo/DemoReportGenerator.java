@@ -1,16 +1,13 @@
 package com.softwaremill.flowsdemo;
 
 import com.softwaremill.jox.Channel;
-import com.softwaremill.jox.Source;
 import com.softwaremill.jox.flows.ByteChunk;
+import com.softwaremill.jox.flows.Flow;
 import com.softwaremill.jox.flows.Flows;
-import com.softwaremill.jox.structured.Scopes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
@@ -24,19 +21,16 @@ public class DemoReportGenerator {
         Path tmpReportPath = Files.createTempFile("report", UUID.randomUUID().toString());
 
         ScopedValue.callWhere(Channel.BUFFER_SIZE, 36, () -> {
-            Scopes.supervised(scope -> {
-                Source<ByteChunk> channel = DemoReportLinesProvider.produceReportLines(scope, NUMBER_OF_ROWS);
-                runReportLinesToTmpFile(channel, tmpReportPath);
-                runContentFromTmpFileToOutputStream(outputStream, tmpReportPath);
-                return null;
-            });
+            Flow<ByteChunk> reportLines = DemoReportLinesProvider.produceReportLines(NUMBER_OF_ROWS);
+            runReportLinesToTmpFile(reportLines, tmpReportPath);
+            runContentFromTmpFileToOutputStream(outputStream, tmpReportPath);
             return null;
         });
     }
 
-    private static void runReportLinesToTmpFile(Source<ByteChunk> channel, Path tmpReportPath) throws Exception {
+    private static void runReportLinesToTmpFile(Flow<ByteChunk> reportLines, Path tmpReportPath) throws Exception {
         try {
-            Flows.fromSource(channel)
+            reportLines
                     .toByteFlow()
                     .runToFile(tmpReportPath);
         } catch (Exception e) {
