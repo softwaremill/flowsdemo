@@ -15,14 +15,11 @@ java {
 
 repositories {
     mavenCentral()
-    mavenLocal()
 }
 
 dependencies {
     implementation ('org.springframework.boot:spring-boot-starter-web')
-    implementation 'com.softwaremill.jox:channels:0.3.2'
-    implementation 'com.softwaremill.jox:structured:0.3.2'
-    implementation 'com.softwaremill.jox:flows:0.3.2'
+    implementation 'com.softwaremill.jox:flows:0.4.0'
     implementation 'org.slf4j:slf4j-api:2.0.16'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.mockito', module: 'mockito-core'

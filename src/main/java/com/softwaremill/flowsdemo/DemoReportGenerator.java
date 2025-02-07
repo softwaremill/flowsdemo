@@ -1,6 +1,5 @@
 package com.softwaremill.flowsdemo;
 
-import com.softwaremill.jox.Channel;
 import com.softwaremill.jox.flows.ByteChunk;
 import com.softwaremill.jox.flows.Flow;
 import com.softwaremill.jox.flows.Flows;
@@ -20,7 +19,7 @@ public class DemoReportGenerator {
     void generateReport(OutputStream outputStream) throws Exception {
         Path tmpReportPath = Files.createTempFile("report", UUID.randomUUID().toString());
 
-        ScopedValue.callWhere(Channel.BUFFER_SIZE, 36, () -> {
+        ScopedValue.callWhere(Flow.CHANNEL_BUFFER_SIZE, 36, () -> {
             Flow<ByteChunk> reportLines = DemoReportLinesProvider.produceReportLines(NUMBER_OF_ROWS);
             runReportLinesToTmpFile(reportLines, tmpReportPath);
             runContentFromTmpFileToOutputStream(outputStream, tmpReportPath);
@@ -43,7 +42,6 @@ public class DemoReportGenerator {
     private static void runContentFromTmpFileToOutputStream(OutputStream outputStream, Path tmpReportPath) throws Exception {
         try {
             Flows.fromFile(tmpReportPath, 128)
-                    .toByteFlow()
                     .runToOutputStream(outputStream);
         } catch (Exception e) {
             LOGGER.error("Exception while writing from file to response!");
